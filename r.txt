@@ -1,0 +1,80 @@
+sample<-read.csv("sample1.csv")
+> traindata <- as.data.frame(sample[1:14,])
+
+> testdata<-as.data.frame(sample[15,])
+
+
+> library("e1071")
+Warning message:
+package ‘e1071’ was built under R version 3.2.5 
+> model <- naiveBayes(Enrolls ~ Age+Income+JobSatisfaction+Desire,traindata)
+> model
+
+Naive Bayes Classifier for Discrete Predictors
+
+Call:
+naiveBayes.default(x = X, y = Y, laplace = laplace)
+
+
+> results<-predict(model,testdata)
+
+> testdata
+    Age Income JobSatisfaction Desire Enrolls
+15 <=30 Medium             Yes   Fair      No
+> testdata[,c("Age")]
+[1] <=30
+Levels: <=30 >40 31 to 40
+> agecounts<-table(traindata[,c("Enrolls","Age")])
+> agecounts
+       Age
+Enrolls <=30 >40 31 to 40
+    No     3   1        0
+    Yes    2   4        4
+> agecounts<-agecounts/rowSums(agecounts)
+> agecounts
+       Age
+Enrolls <=30  >40 31 to 40
+    No  0.75 0.25     0.00
+    Yes 0.20 0.40     0.40
+> agecounts["yes",<=30]
+Error: unexpected '<=' in "agecounts["yes",<="
+> agecounts["yes","<=30"]
+Error in agecounts["yes", "<=30"] : subscript out of bounds
+> agecounts["yes",testdata[,c("Age")]]
+Error in agecounts["yes", testdata[, c("Age")]] : subscript out of bounds
+> testdata[,c("Age")]
+[1] <=30
+Levels: <=30 >40 31 to 40
+> agecounts["yes",testdata[,c("Age")]]
+Error in agecounts["yes", testdata[, c("Age")]] : subscript out of bounds
+> agecounts["Yes",testdata[,c("Age")]]
+[1] 0.2
+
+> install.packages("rpart.plot")
+
+> library("rpart")
+> library("rpart.plot")
+Warning message:
+package ‘rpart.plot’ was built under R version 3.2.5 
+> play_des<-read.csv("DTdata.csv")
+  
+
+> fit<-rpart(play ~ outlook+temperature+humidity+wind,method="class",data=play_des,control=rpart.control(minsplit=1),parms=list(split="information"))
+> fit
+
+> rpart.plot(fit,type=4,extra=1)
+> newdata<-data.frame(outlook="rainy",temparature="mild",humidity="high",wind=FALSE)
+> newdata
+  outlook temparature humidity  wind
+1   rainy        mild     high FALSE
+> predict(fit,newdata=newdata,type="prob")
+Error in eval(expr, envir, enclos) : object 'temperature' not found
+> newdata<-data.frame(outlook="rainy",temperature="mild",humidity="high",wind=FALSE)
+> predict(fit,newdata=newdata,type="prob")
+  no yes
+1  1   0
+> predict(fit,newdata=newdata,type="class")
+ 1 
+no 
+Levels: no yes
+> -
